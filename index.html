@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioQuest: The Nervous System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pastel-pink: #ffecd2;
+            --pastel-blue: #fcb69f;
+            --soft-white: rgba(255, 255, 255, 0.85);
+            --clay-shadow: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
+            --clay-inset: inset 2px 2px 5px rgba(255,255,255,0.5), inset -2px -2px 5px rgba(0,0,0,0.05);
+        }
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #fff5f5 0%, #f0f4ff 50%, #f5fff9 100%);
+            background-attachment: fixed;
+            color: #576574;
+            overflow-x: hidden;
+        }
+
+        /* Cute Claymorphism / Pastel Aero */
+        .clay-card {
+            background: var(--soft-white);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            border: 4px solid #ffffff;
+            box-shadow: var(--clay-shadow);
+        }
+
+        .clay-btn {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 4px 4px 10px #d1d9e6, -4px -4px 10px #ffffff;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid transparent;
+        }
+        .clay-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 12px #c5cedb, -6px -6px 12px #ffffff;
+            border-color: #ffdae0;
+        }
+        .clay-btn:active {
+            transform: scale(0.96);
+            box-shadow: inset 4px 4px 8px #d1d9e6, inset -4px -4px 8px #ffffff;
+        }
+
+        .btn-pink { background: #fff0f3; color: #ff8fa3; }
+        .btn-blue { background: #f0f7ff; color: #70a1ff; }
+        .btn-mint { background: #f2fff9; color: #2ed573; }
+
+        .progress-container {
+            height: 18px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            box-shadow: inset 2px 2px 5px #ccc, inset -2px -2px 5px #fff;
+            padding: 3px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            border-radius: 20px;
+            transition: width 0.6s ease;
+        }
+
+        /* Floating Decorations */
+        .floating-icon {
+            position: fixed;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.4;
+            animation: float 15s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-40px) rotate(20deg); }
+        }
+
+        .bounce-hover:hover { animation: soft-bounce 0.5s ease infinite alternate; }
+        @keyframes soft-bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+    <!-- Cute Floating Elements -->
+    <div class="floating-icon text-pink-300 text-5xl top-10 left-10">🌸</div>
+    <div class="floating-icon text-blue-200 text-6xl bottom-20 left-20" style="animation-delay: 2s">☁️</div>
+    <div class="floating-icon text-yellow-200 text-4xl top-40 right-20" style="animation-delay: 4s">⭐</div>
+    <div class="floating-icon text-purple-200 text-5xl bottom-10 right-10" style="animation-delay: 1s">🎀</div>
+
+    <div id="app" class="w-full max-w-2xl">
+        <!-- Start Screen -->
+        <div id="start-screen" class="clay-card p-12 text-center space-y-8">
+            <div class="relative inline-block">
+                <div class="text-9xl bounce-hover cursor-pointer">🧠</div>
+                <div class="absolute -top-4 -right-4 bg-white p-2 rounded-full shadow-lg text-2xl">✨</div>
+            </div>
+            <div>
+                <h1 class="text-5xl font-bold text-pink-400 tracking-tight">Neural Buddies</h1>
+                <p class="text-lg font-medium text-slate-400 mt-2 italic">A short & sweet brain adventure!</p>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4">
+                <div class="p-4 clay-btn btn-pink flex flex-col items-center">
+                    <span class="text-2xl">📖</span>
+                    <span class="text-xs font-bold mt-1 uppercase">30 Tasks</span>
+                </div>
+                <div class="p-4 clay-btn btn-blue flex flex-col items-center">
+                    <span class="text-2xl">🌈</span>
+                    <span class="text-xs font-bold mt-1 uppercase">3 Stages</span>
+                </div>
+                <div class="p-4 clay-btn btn-mint flex flex-col items-center">
+                    <span class="text-2xl">🍰</span>
+                    <span class="text-xs font-bold mt-1 uppercase">Fun Treats</span>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="w-full py-5 clay-btn btn-pink text-2xl font-bold hover:bg-pink-100">
+                Start Quest! 🍬
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden clay-card p-8 space-y-6 relative">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div id="difficulty-bubble" class="px-3 py-1 rounded-full text-[10px] font-black uppercase text-white bg-pink-300">Easy</div>
+                    <span id="topic-label" class="text-xs font-bold text-slate-400">Memory Check</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] font-black text-slate-300 uppercase">Points Pool</span>
+                    <div id="score" class="text-2xl font-bold text-pink-400">00000</div>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-fill" style="width: 0%"></div>
+            </div>
+
+            <div class="min-h-[220px] flex flex-col justify-center">
+                <h2 id="question-text" class="text-2xl font-bold text-slate-700 leading-snug mb-8">Ready to learn?</h2>
+                <div id="options-grid" class="grid grid-cols-1 gap-4">
+                    <!-- Buttons -->
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-between items-center gap-4 pt-6 border-t border-dashed border-pink-100">
+                <div class="flex gap-2">
+                    <button onclick="usePowerup('5050')" id="p-5050" class="clay-btn px-4 py-2 text-[10px] font-black btn-blue uppercase">50:50 (<span id="count-5050">2</span>)</button>
+                    <button onclick="usePowerup('hint')" id="p-hint" class="clay-btn px-4 py-2 text-[10px] font-black btn-mint uppercase">Hint (<span id="count-hint">2</span>)</button>
+                    <button onclick="usePowerup('reveal')" id="p-reveal" class="clay-btn px-4 py-2 text-[10px] font-black btn-pink uppercase">Reveal (<span id="count-reveal">1</span>)</button>
+                </div>
+            </div>
+
+            <!-- Cute Feedback Overlay -->
+            <div id="feedback" class="hidden absolute inset-0 bg-white/95 z-50 rounded-[40px] flex flex-col items-center justify-center p-10 text-center">
+                <div id="feedback-emoji" class="text-8xl mb-4 animate-bounce">🍭</div>
+                <h3 id="feedback-title" class="text-3xl font-bold mb-2">So Smart!</h3>
+                <p id="feedback-msg" class="text-slate-500 text-lg mb-8"></p>
+                <button onclick="nextStep()" class="w-full py-4 clay-btn btn-pink font-bold text-xl">Keep Going! ✨</button>
+            </div>
+        </div>
+
+        <!-- Mini-Game: Reflex Hearts -->
+        <div id="mini-screen" class="hidden clay-card p-8 text-center space-y-6">
+            <h2 class="text-3xl font-black text-pink-400 uppercase italic">Bubble Pop!</h2>
+            <p class="text-slate-400 font-medium">The brain needs happy signals! Tap the hearts! ❤️</p>
+            <div id="game-container" class="relative w-full aspect-video bg-pink-50/30 rounded-[30px] border-4 border-white shadow-inner overflow-hidden cursor-heart">
+                <!-- Hearts spawn here -->
+            </div>
+            <div class="flex justify-between items-center px-4 font-bold text-slate-400">
+                <div id="game-timer">Time: 10s</div>
+                <div id="game-hits">Pops: 0</div>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="hidden clay-card p-12 text-center space-y-8">
+            <div class="text-8xl">🧁</div>
+            <h2 class="text-4xl font-bold text-pink-400">Quest Finished!</h2>
+            <div class="space-y-2">
+                <div class="text-slate-400 font-bold text-sm uppercase">Brain Power Level</div>
+                <div id="final-accuracy" class="text-6xl font-black text-pink-500">0%</div>
+                <div id="final-score" class="text-xl font-bold text-blue-400">+0 Points</div>
+            </div>
+            <div class="flex flex-col gap-4">
+                <button id="revisit-btn" onclick="startReview()" class="hidden py-4 clay-btn btn-mint font-bold text-xl">
+                    Fix the Bubbles! 🌸
+                </button>
+                <button onclick="location.reload()" class="py-4 clay-btn font-bold text-slate-500 text-xl">
+                    Play Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rawData = {
+            "Input (Sensation)": [
+                { q: "Which neurons carry information from sense organs to the CNS?", a: "Sensory Neurons", h: "They help you sense yummy smells!" },
+                { q: "Sensation involves receiving information from the ________.", a: "Environment", h: "Everything around your cute self!" },
+                { q: "Another name for Sensory neurons is ________ neurons.", a: "Afferent", h: "Starts with an 'A', like Apple!" },
+                { q: "Sensory neurons send information to the brain for ________.", a: "Decoding", h: "Like reading a secret friendship note!" }
+            ],
+            "Process (Integration)": [
+                { q: "Where is information processed to formulate a response?", a: "Brain", h: "The big pink squishy organ!" },
+                { q: "Which neurons are responsible for integration?", a: "Interneurons", h: "The 'between' buddies!" },
+                { q: "Integration happens between input and ________.", a: "Output", h: "What comes after the thinking part?" },
+                { q: "The spinal cord serves as a link between the brain and the ________.", a: "PNS", h: "Peripheral Nervous System friends." }
+            ],
+            "Output (Response)": [
+                { q: "Which neurons carry signals to muscles or glands?", a: "Motor Neurons", h: "Beep beep! Motor means move!" },
+                { q: "Another name for Motor neurons is ________ neurons.", a: "Efferent", h: "E is for Excellent and Efferent!" },
+                { q: "The output phase produces a ________ to a stimulus.", a: "Response", h: "Like a high-five back!" },
+                { q: "Efferent signals move ________ from the brain.", a: "Away", h: "Saying bye-bye to the brain." }
+            ],
+            "Neuron Anatomy": [
+                { q: "Which part of the neuron contains the DNA?", a: "Nucleus", h: "The teeny tiny control center!" },
+                { q: "These branch-like structures receive messages:", a: "Dendrites", h: "Like little reaching hands!" },
+                { q: "The long extension that sends signals away from the soma is the:", a: "Axon", h: "A long, long tail." },
+                { q: "Neurotransmitters are released at the ________.", a: "Axon Terminals", h: "The sparkly end of the neuron!" },
+                { q: "What is the correct order of signal flow in a neuron?", a: "Dendrites -> Soma -> Axon", h: "Receive, Process, then Go!" }
+            ],
+            "Homeostasis": [
+                { q: "Sweating to cool down is an example of ________ feedback.", a: "Negative", h: "Helping you get back to cozy normal." },
+                { q: "Which feedback causes a small change to become a bigger change?", a: "Positive", h: "More and more and more!" },
+                { q: "Keeping blood pressure constant is called ________.", a: "Homeostasis", h: "Finding a happy balance." },
+                { q: "Childbirth is a classic example of ________ feedback.", a: "Positive", h: "A big push for a new friend!" }
+            ]
+        };
+
+        let questions = [];
+        let currentIdx = 0;
+        let score = 0;
+        let mistakes = [];
+        let powerups = { "5050": 2, "hint": 2, "reveal": 1 };
+        let isReview = false;
+        const TARGET_COUNT = 30;
+
+        function build30Questions() {
+            const list = [];
+            const topics = Object.keys(rawData);
+            
+            // Distribute 30 questions across topics (approx 6 per topic)
+            topics.forEach(topic => {
+                const base = rawData[topic];
+                for(let i=0; i<6; i++) {
+                    const template = base[i % base.length];
+                    // Set difficulty based on overall index later
+                    list.push({
+                        ...template,
+                        topic: topic,
+                        options: generateOptions(template.a)
+                    });
+                }
+            });
+
+            // Randomize and slice to exactly 30
+            const shuffled = list.sort(() => Math.random() - 0.5).slice(0, TARGET_COUNT);
+            
+            // Assign difficulty tiers (10 Easy, 10 Medium, 10 Hard)
+            return shuffled.map((q, idx) => {
+                q.difficulty = idx < 10 ? "Easy" : (idx < 20 ? "Medium" : "Hard");
+                return q;
+            });
+        }
+
+        function generateOptions(correct) {
+            const pool = ["Soma", "Axon", "Dendrites", "Nucleus", "Interneurons", "Motor Neurons", "Sensory Neurons", "Brain", "Spinal Cord", "Somatic", "Autonomic", "Sympathetic", "Afferent", "Efferent", "Homeostasis", "Negative Feedback", "Positive Feedback"];
+            let others = pool.filter(p => p !== correct).sort(() => Math.random() - 0.5).slice(0, 3);
+            return [correct, ...others].sort(() => Math.random() - 0.5);
+        }
+
+        function startGame() {
+            questions = build30Questions();
+            currentIdx = 0;
+            score = 0;
+            mistakes = [];
+            isReview = false;
+            showScreen('quiz');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentIdx];
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('topic-label').innerText = q.topic;
+            
+            const bub = document.getElementById('difficulty-bubble');
+            bub.innerText = q.difficulty;
+            bub.style.background = q.difficulty === 'Easy' ? '#ffcfd2' : (q.difficulty === 'Medium' ? '#cfd9ff' : '#d2ffd6');
+            bub.style.color = q.difficulty === 'Easy' ? '#ff6b6b' : (q.difficulty === 'Medium' ? '#5d5dff' : '#27ae60');
+
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "clay-btn w-full p-5 text-left font-bold text-slate-500 hover:text-pink-500";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(opt, btn);
+                grid.appendChild(btn);
+            });
+
+            document.getElementById('progress-bar').style.width = ((currentIdx) / questions.length * 100) + '%';
+            document.getElementById('feedback').classList.add('hidden');
+        }
+
+        function checkAnswer(selected, btn) {
+            const q = questions[currentIdx];
+            const feedback = document.getElementById('feedback');
+            const title = document.getElementById('feedback-title');
+            const msg = document.getElementById('feedback-msg');
+            const emoji = document.getElementById('feedback-emoji');
+
+            if(selected === q.a) {
+                score += 100;
+                emoji.innerText = "⭐";
+                title.innerText = "So Smart!";
+                title.className = "text-3xl font-bold mb-2 text-pink-400";
+                msg.innerText = "That synapse is glowing bright!";
+            } else {
+                if(!isReview) mistakes.push(q);
+                emoji.innerText = "☁️";
+                title.innerText = "Brain Fog!";
+                title.className = "text-3xl font-bold mb-2 text-blue-300";
+                msg.innerHTML = `Correct buddy was: <span class="font-bold text-slate-700">${q.a}</span>`;
+            }
+
+            document.getElementById('score').innerText = score.toString().padStart(5, '0');
+            feedback.classList.remove('hidden');
+        }
+
+        function nextStep() {
+            currentIdx++;
+            // Trigger mini-game at Q10 and Q20
+            if(!isReview && (currentIdx === 10 || currentIdx === 20)) {
+                startMiniGame();
+                return;
+            }
+            if(currentIdx < questions.length) loadQuestion();
+            else endGame();
+        }
+
+        function startMiniGame() {
+            showScreen('mini');
+            const container = document.getElementById('game-container');
+            const timerEl = document.getElementById('game-timer');
+            const hitsEl = document.getElementById('game-hits');
+            let timeLeft = 10;
+            let hits = 0;
+            container.innerHTML = '';
+
+            const gameTimer = setInterval(() => {
+                timeLeft--;
+                timerEl.innerText = `Time: ${timeLeft}s`;
+                if(timeLeft <= 0) {
+                    clearInterval(gameTimer);
+                    clearInterval(spawnInterval);
+                    showScreen('quiz');
+                    loadQuestion();
+                }
+            }, 1000);
+
+            const spawnInterval = setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = "absolute w-14 h-14 flex items-center justify-center cursor-pointer select-none text-3xl transition-transform hover:scale-125";
+                heart.innerHTML = "❤️";
+                heart.style.left = Math.random() * 85 + 5 + "%";
+                heart.style.top = Math.random() * 80 + 5 + "%";
+                heart.onclick = () => {
+                    hits++;
+                    score += 50;
+                    hitsEl.innerText = `Pops: ${hits}`;
+                    document.getElementById('score').innerText = score.toString().padStart(5, '0');
+                    heart.innerHTML = "✨";
+                    setTimeout(() => heart.remove(), 200);
+                };
+                container.appendChild(heart);
+                setTimeout(() => heart.remove(), 1200);
+            }, 600);
+        }
+
+        function endGame() {
+            showScreen('end');
+            const accuracy = Math.round(((questions.length - mistakes.length) / questions.length) * 100);
+            document.getElementById('final-accuracy').innerText = accuracy + "%";
+            document.getElementById('final-score').innerText = `+${score} Points`;
+            if(mistakes.length > 0) document.getElementById('revisit-btn').classList.remove('hidden');
+        }
+
+        function startReview() {
+            questions = [...mistakes];
+            currentIdx = 0;
+            isReview = true;
+            showScreen('quiz');
+            loadQuestion();
+        }
+
+        function usePowerup(type) {
+            if(powerups[type] <= 0) return;
+            const q = questions[currentIdx];
+            if(type === '5050') {
+                const btns = Array.from(document.getElementById('options-grid').children);
+                let count = 0;
+                btns.forEach(b => { if(b.innerText !== q.a && count < 2) { b.style.opacity = '0.3'; b.disabled = true; count++; } });
+            } else if(type === 'hint') {
+                const hintBox = document.createElement('div');
+                hintBox.className = "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 clay-card z-[100] text-center font-bold text-pink-400 border-2 border-pink-200";
+                hintBox.innerHTML = `✨ BUBBLE HINT:<br><span class="text-slate-500">${q.h}</span>`;
+                document.body.appendChild(hintBox);
+                setTimeout(() => hintBox.remove(), 2500);
+            } else if(type === 'reveal') {
+                const btns = Array.from(document.getElementById('options-grid').children);
+                btns.forEach(b => { if(b.innerText === q.a) b.style.borderColor = "#ff8fa3"; });
+            }
+            powerups[type]--;
+            document.getElementById(`count-${type}`).innerText = powerups[type];
+            if(powerups[type] <= 0) document.getElementById(`p-${type}`).style.opacity = "0.3";
+        }
+
+        function showScreen(id) {
+            ['start', 'quiz', 'mini', 'end'].forEach(s => document.getElementById(s + '-screen').classList.add('hidden'));
+            document.getElementById(id + '-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
